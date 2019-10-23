@@ -19,6 +19,38 @@ SPEED {SPEEDING SPEEDS SPED }
 - * BUILDUP                                           [154]         # ACCELERATE
 - * &WEAPON                                           [194]         # RUSH
 
+---  ANGER   [---]  ---
++ANGERED_BY {}
+ANGER 
+ENRAGE 
+EXASPERATE 
+INCENSE 
+INFLAME 
+
+---  APPEAR   [---]  ---
+APPEAR 
+LOOK 
+SEEM 
+- * UNCERTAIN                                         [012]         # LOOK
+- * (TO FUTURE) (WITH OPTIMISM)                       [013]         # LOOK
+- * FORWARD                                           [013]         # LOOK
+- * (FOR HELP)                                        [020]         # LOOK
+- * POSITIVELY                                        [030]         # LOOK
+- * (FOR WAY)                                         [032]         # LOOK
+- * (IN FAVOR)                                        [050]         # APPEAR
+- * (INTO ALLEGATION)                                 [090]         # LOOK
+- * (INTO COMPLAINTS)                                 [090]         # LOOK
+- * (INTO CHARGES)                                    [090]         # LOOK
+- * (INTO REPORTS)                                    [090]         # LOOK
+- * (INTO CHARGE)                                     [090]         # LOOK
+- * (INTO DEATH)                                      [090]         # LOOK
+- * (FOR LINK)                                        [090]         # LOOK
+- * (TO PRESS) (FOR OUSTER)                           [1041]        # LOOK
+- * (AT {NEW SANCTIONS})                              [1312]        # LOOK
+- * (IN COURT)                                        [173]         # APPEAR
+- * (BEHIND &WEAPON)                                  [190]         # APPEAR
+- * (BEFORE COURT)                                    [:173]        # APPEAR
+- * (AT HEARING)                                      [:173]        # APPEAR
 
 
 
@@ -59,41 +91,6 @@ SWITCH
 
 
 
----  ANGER   [---]  ---
-+ANGERED_BY {}
-ANGER 
-ENRAGE 
-EXASPERATE 
-INCENSE 
-INFLAME 
-
-
-
-
----  APPEAR   [---]  ---
-APPEAR 
-LOOK 
-SEEM 
-- * UNCERTAIN                                         [012]         # LOOK
-- * (TO FUTURE) (WITH OPTIMISM)                       [013]         # LOOK
-- * FORWARD                                           [013]         # LOOK
-- * (FOR HELP)                                        [020]         # LOOK
-- * POSITIVELY                                        [030]         # LOOK
-- * (FOR WAY)                                         [032]         # LOOK
-- * (IN FAVOR)                                        [050]         # APPEAR
-- * (INTO ALLEGATION)                                 [090]         # LOOK
-- * (INTO COMPLAINTS)                                 [090]         # LOOK
-- * (INTO CHARGES)                                    [090]         # LOOK
-- * (INTO REPORTS)                                    [090]         # LOOK
-- * (INTO CHARGE)                                     [090]         # LOOK
-- * (INTO DEATH)                                      [090]         # LOOK
-- * (FOR LINK)                                        [090]         # LOOK
-- * (TO PRESS) (FOR OUSTER)                           [1041]        # LOOK
-- * (AT {NEW SANCTIONS})                              [1312]        # LOOK
-- * (IN COURT)                                        [173]         # APPEAR
-- * (BEHIND &WEAPON)                                  [190]         # APPEAR
-- * (BEFORE COURT)                                    [:173]        # APPEAR
-- * (AT HEARING)                                      [:173]        # APPEAR
 
 
 
