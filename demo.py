@@ -377,7 +377,6 @@ def test():
 
 # 相似度
 
-
 def sim(word_1, word_2):
     score = -1
     wordList_1 = wn.synsets(word_1, lang='eng')

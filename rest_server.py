@@ -5,16 +5,10 @@
 # here as json and being branched out to each projects. Basic level of validation is also being done in this file. #
 #-------------------------------------------------------------------------------------------------------------------------------
 ################################################################################################################################
-from tensorflow.python.platform import gfile
 from flask import Flask, jsonify, abort, request, make_response, url_for, redirect, render_template
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.utils import secure_filename
 import os
 import shutil
-import numpy as np
-import tarfile
-from datetime import datetime
-from scipy import ndimage
 import subprocess
 import json
 
