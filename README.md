@@ -11,11 +11,12 @@ NLP
 
 `pip install requests`
 
+`pip install flask`
+
 `pip install nltk`
 
 `python download.py`
 
-`pip install flask`
 
 Choose tab `Corpora` and download `omw`. If it still can not work properly, download everything relative to "wordnet".
 

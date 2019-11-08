@@ -4,6 +4,8 @@
 
 ## Build Setup
 
+Hint: You can use `cnpm` in China to solve network problems.
+
 ``` bash
 # install dependencies
 npm install
