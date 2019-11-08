@@ -4,7 +4,7 @@
 
 ## Build Setup
 
-Hint: You can use `cnpm` in China Mainland to solve network problems.
+Hint: You can use [cnpm](https://github.com/cnpm/cnpm) in China Mainland to get much more faster speed.
 
 ``` bash
 # install dependencies
