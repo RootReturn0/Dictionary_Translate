@@ -7,34 +7,41 @@ from nltk.corpus import wordnet as wn
 import itertools
 import os
 import re
-import requests
 
-import http.client
-import hashlib
-import urllib
-import random
-import json
+from translateAPI import translateByAPI
+from judge import judge
 
+import threading
+import rest_server
 
 ORIGENAL_DICTIONARY = '英文字典.txt'
 TARGET_DICTIONARY = '中文字典test.txt'
-URL_TRANSLATE_API = 'http://fanyi.youdao.com/openapi.do?keyfrom=neverland&key=969918857&type=data&doctype=json&version=1.1&q='
+COUNT_DICTIONARY = 'count.txt'
 
 # TESTLIST = ['EARLY', 'ELECTIONS']
 
 targetFile = []
 
+
+
 # 写文件
 
 
-def writeFile():
+def writeFile(block,count):
     global targetFile
 
-    with open(TARGET_DICTIONARY, 'w') as f:
-        f.writelines(targetFile)
+    with open(COUNT_DICTIONARY, 'w') as f:
+        f.write(block+' '+str(count))
         f.close()
 
+    with open(TARGET_DICTIONARY, 'a') as f:
+        print(targetFile)
+        f.writelines(targetFile)
+        f.close()
+    print('Files saved!')
+
 # 判断是否已存在于本块的翻译内
+
 
 def ifInBlockRes(item, resList):
     for line in resList:
@@ -52,17 +59,32 @@ def translateFile():
         print('File does not exist!')
         return
 
+    count=-1 # count lines
+
     with open(ORIGENAL_DICTIONARY) as f:
         while(True):
-        # for block in range(0, 3):
+            # for block in range(0, 3):
 
             blockMeaning = ''
             # 记录块结果，减少去重所需时间
-            res = []  
+            res = []
             wrongList = []
+
+            fileSlice = ''
+
+            try:
+                with open(COUNT_DICTIONARY) as cf:
+                    content = cf.readline().split(' ')
+                    blockMeaning = content[0]
+                    count = int(content[1])
+                    for i in range(0,count):
+                        f.readline()
+            except:
+                print('No counting record')
 
             while(True):
                 line = f.readline()
+                # print(line)
                 cameoCode = str(re.findall(r"\[(.+?)\]", line))
 
                 # 跳过含有明显介词的行
@@ -73,6 +95,7 @@ def translateFile():
                 elif line.startswith('---'):
                     segs = line.split()
                     blockMeaning = segs[1]
+                    print(segs,blockMeaning)
                     # block_code = segs[2]
                     res.append(line)
 
@@ -82,19 +105,35 @@ def translateFile():
                     words = tempLine[1:].split()[0]  # 提取词组
                     tempWordList = translateByAPI(words)
 
-                    for temp in tempWordList:
+                    tempJudgeList = []
+                    for tempTransRes in tempWordList:
                         # 跳过明显偏离
-                        if temp in wrongList:
+                        if tempTransRes in wrongList:
                             continue
                         # 跳过已含有的词汇，除非本行存在cameo编号
-                        if ifInBlockRes(temp, res) and cameoCode == '[]':
+                        if ifInBlockRes(tempTransRes, res) and cameoCode == '[]':
                             continue
 
-                        judgeResult = judge(blockMeaning, 'v. '+words.replace('_',' '), cameoCode, temp)
-                        if(judgeResult == 'y'):
-                            res.append(tempLine.replace(words, temp))
-                        elif(judgeResult == 'n'):
-                            wrongList.append(temp)
+                        tempJudgeList.append({
+                            'class': blockMeaning,
+                            'origin': 'v. '+words.replace('_', ' '),
+                            'code': cameoCode,
+                            'Chinese': tempTransRes
+                        })
+                    print(tempJudgeList,'111')
+                    returnRes=judge(tempJudgeList)
+
+                    for item in tempJudgeList:
+                        if item in returnRes:
+                            res.append(tempLine.replace(words.replace('_', ' '), item['Chinese']))
+                        else:
+                            wrongList.append(item['Chinese'])
+                        # judgeResult = judge(
+                        #     blockMeaning, 'v. '+words.replace('_', ' '), cameoCode, temp)
+                        # if(judgeResult == 'y'):
+                        #     res.append(tempLine.replace(words, temp))
+                        # elif(judgeResult == 'n'):
+                        #     wrongList.append(temp)
                         # else:
                         #     res.append(line)
 
@@ -102,11 +141,11 @@ def translateFile():
                 elif line.startswith('-'):
                     # 去掉不必要的符号
                     word = line[1:].split("#")[0].split(
-                        '[')[0].replace('*', '')  
+                        '[')[0].replace('*', '')
                     # 消除开头空格，判断单词个数
                     words = word.replace('&', '').replace(
                         "}", "").replace("{", "").split()
-                    originWords=' '.join(words)
+                    originWords = ' '.join(words)
                     # words=TESTLIST
                     wordList = []
                     # index = 0
@@ -146,11 +185,11 @@ def translateFile():
                     #     elif(judgeResult == 'n'):
                     #         wrongList.append(translatedWords)
 
-                    if len(words)==1:
-                        isFound=False # 判断单词是否能被找到
+                    if len(words) == 1:
+                        isFound = False  # 判断单词是否能被找到
                         for synset in wn.synsets(words[0], lang='eng'):
                             for lemma in synset.lemma_names('cmn'):
-                                isFound=True
+                                isFound = True
                                 # wordnet中对形容词翻译含有该符号，如“前面+的”
                                 # 此处应全部为动词，不存在形容词，故遇到形容词跳过
                                 if '+' in lemma:
@@ -164,44 +203,70 @@ def translateFile():
                         else:
                             wordList = translateByAPI(words[0])
 
-                        for result in wordList:
-                            judgeResult = judge(blockMeaning, 'n. '+originWords,
-                                                cameoCode, result)
-                            if(judgeResult == 'y'):
-                                temp = line.replace('&', '').replace(
-                                    originWords, result)
-                                # for i in range(1, len(words)):
-                                #     temp = temp.replace(words[i], '')
-                                res.append(temp)
-                            elif(judgeResult == 'n'):
-                                wrongList.append(result)
-                            # else:
-                            #     res.append(line)
+                        tempJudgeList = []
+                        for tempTransRes in wordList:
+                            tempJudgeList.append({
+                                'class': blockMeaning,
+                                'origin': 'n. '+originWords,
+                                'code': cameoCode,
+                                'Chinese': tempTransRes
+                            })
+                        print(tempJudgeList,'222')
+                        returnRes=judge(tempJudgeList)
+
+                        for item in tempJudgeList:
+                            if item in returnRes:
+                                res.append(line.replace('&', '').replace(originWords, item['Chinese']))
+                            else:
+                                wrongList.append(item['Chinese'])
+                            # judgeResult = judge(blockMeaning, 'n. '+originWords,
+                            #                     cameoCode, result)
+                            # if(judgeResult == 'y'):
+                            #     temp = line.replace('&', '').replace(
+                            #         originWords, result)
+                            #     # for i in range(1, len(words)):
+                            #     #     temp = temp.replace(words[i], '')
+                            #     res.append(temp)
+                            # elif(judgeResult == 'n'):
+                            #     wrongList.append(result
 
                     else:
 
                         # 使用API翻译直接翻译词组
                         translatedWordList = translateByAPI(originWords)
 
-                        for translatedWords in translatedWordList:
+                        tempJudgeList = []
+                        for tempTransRes in translatedWordList:
                             # 跳过明显偏离
-                            if translatedWords in wrongList:
+                            if tempTransRes in wrongList:
                                 continue
                             # 跳过已含有的词汇 Cameo是否再判断一次？
-                            if ifInBlockRes(translatedWords, res):
+                            if ifInBlockRes(tempTransRes, res):
                                 continue
-                            judgeResult = judge(blockMeaning, 'n. '+originWords,
-                                                cameoCode, translatedWords)
-                            if(judgeResult == 'y'):
-                                temp = line.replace('&', '').replace(
-                                    originWords, translatedWords)
-                                # for i in range(1, len(words)):
-                                #     temp = temp.replace(words[i], '')
-                                res.append(temp)
-                            elif(judgeResult == 'n'):
-                                wrongList.append(translatedWords)
-                            # else:
-                            #     res.append(line)
+                            tempJudgeList.append({
+                                'class': blockMeaning,
+                                'origin': 'n. '+originWords,
+                                'code': cameoCode,
+                                'Chinese': tempTransRes
+                            })
+                        print(tempJudgeList,'333')
+                        returnRes=judge(tempJudgeList)
+
+                        for item in tempJudgeList:
+                            if item in returnRes:
+                                res.append(line.replace('&', '').replace(originWords, item['Chinese']))
+                            else:
+                                wrongList.append(item['Chinese'])
+                            # judgeResult = judge(blockMeaning, 'n. '+originWords,
+                            #                     cameoCode, translatedWords)
+                            # if(judgeResult == 'y'):
+                            #     temp = line.replace('&', '').replace(
+                            #         originWords, translatedWords)
+                            #     # for i in range(1, len(words)):
+                            #     #     temp = temp.replace(words[i], '')
+                            #     res.append(temp)
+                            # elif(judgeResult == 'n'):
+                            #     wrongList.append(translatedWords)
 
                 # 空行
                 elif line == '\n':
@@ -215,13 +280,14 @@ def translateFile():
                     verb = line.split('#')[0].split('[')[0]
                     # 存在结尾出现空格或换行符的情况
                     verb = verb.replace('\n', '').replace(' ', '')
-                    
+
                     wordList = []
 
-                    isFound=False # 判断单词是否能被找到
+                    isFound = False  # 判断单词是否能被找到
                     for synset in wn.synsets(verb, lang='eng'):
                         for lemma in synset.lemma_names('cmn'):
-                            isFound=True
+                            print(blockMeaning, lemma)
+                            isFound = True
                             # wordnet中对形容词翻译含有该符号，如“前面+的”
                             # 此处应全部为动词，不存在形容词，故遇到形容词跳过
                             if '+' in lemma:
@@ -235,155 +301,71 @@ def translateFile():
                     else:
                         wordList = translateByAPI(verb)
 
-                    for word in wordList:
+                    tempJudgeList = []
+                    for tempTransRes in wordList:
                         # 跳过明显偏离
-                        if word in wrongList:
+                        if tempTransRes in wrongList:
                             continue
                         # 跳过已含有的词汇，除非本行存在cameo编号
-                        if ifInBlockRes(word, res) and cameoCode == '[]':
+                        if ifInBlockRes(tempTransRes, res) and cameoCode == '[]':
                             continue
+                        
+                        print(blockMeaning, verb, cameoCode, tempTransRes)
+                        tempJudgeList.append({
+                                'class': blockMeaning,
+                                'origin': 'v. '+verb,
+                                'code': cameoCode,
+                                'Chinese': tempTransRes
+                            })
 
-                        judgeResult = judge(
-                            blockMeaning, 'v. '+verb, cameoCode, word)
-                        if(judgeResult == 'y'):
-                            res.append(line.replace(verb, word))
-                        elif(judgeResult == 'n'):
-                            wrongList.append(word)
-                        # else:
-                        #     res.append(line)
+                    print(wordList,tempJudgeList)
+                    returnRes=judge(tempJudgeList)
+
+                    for item in tempJudgeList:
+                        if item in returnRes:
+                            res.append(line.replace(verb, item['Chinese']))
+                        else:
+                            wrongList.append(item['Chinese'])
+
+                        
+
+                        # judgeResult = judge(
+                        #     blockMeaning, 'v. '+verb, cameoCode, word)
+                        # if(judgeResult == 'y'):
+                        #     res.append(line.replace(verb, word))
+                        # elif(judgeResult == 'n'):
+                        #     wrongList.append(word)
+                
+                count+=1 # count lines read
 
                 if line == '\n':  # 块结尾，退出循环
                     break
+
+                if rest_server.end_signal():
+                    break
             targetFile = targetFile+res
+            print('jump?!')
+            if rest_server.end_signal():
+
+                writeFile(blockMeaning,count)
+                break
+            
+            # if count>=20:
+            #     break
 
             if line == '':  # 文件结尾，退出循环
+                writeFile(blockMeaning,count)
                 break
 
         f.close()
 
-def translateByAPI(word):
-    word = word.replace('_',' ')
-    res = youdaoTranslate(word)
-    # print(res)
-    try:
-        tempBaiduRes = baiduTranslate(word)
-        if tempBaiduRes not in res:
-            res.append(tempBaiduRes)
-        # print(res)
-        return res
-    except:
-        print('e: ',str(res))
-        return res
-
-
-# Youdao API
-def youdaoTranslate(word):
-    r = requests.get(url=URL_TRANSLATE_API+word)
-    res = r.json()
-    try:
-        returnedData=res['translation']
-    except:
-        return []
-        print('YouDao ERROR! The word to be translated is '+word,'returned data: '+str(res))
-
-    try:
-        return returnedData+res['web'][0]['value']
-    except:
-        return []
-        print('YouDao ERROR! The word to be translated is '+word,'returned data: '+str(res))
-
-# BaiDu API
-# 请求词组时形如“CALL OFF”或“CALL_OFF”均可
-# 第一种格式更好
-
-
-def baiduTranslate(word):
-    # Google API（可用爬虫实现免费爬取翻译，这里为了代码简洁改用百度API）
-    # requestData = [
-    #     {
-    #         'q': word,
-    #         'target': 'zn'
-    #     }
-    # ]
-    # r = requests.post(URL_GOOGLE_API+word)
-    # print(r.content.decode('utf-8'))
-
-    #百度通用翻译API,不包含词典、tts语音合成等资源，如有相关需求请联系translate_api@baidu.com
-    # coding=utf-8
-
-    appid = '20191022000343458'  # 填写你的appid
-    secretKey = 'GS8G45OIguvyE4brZy4S'  # 填写你的密钥
-
-    httpClient = None
-    myurl = '/api/trans/vip/translate'
-
-    fromLang = 'auto'  # 原文语种
-    toLang = 'zh'  # 译文语种
-    salt = random.randint(32768, 65536)
-    q = word
-    sign = appid + q + str(salt) + secretKey
-    sign = hashlib.md5(sign.encode()).hexdigest()
-    myurl = myurl + '?appid=' + appid + '&q=' + urllib.parse.quote(q) + '&from=' + fromLang + '&to=' + toLang + '&salt=' + str(
-        salt) + '&sign=' + sign
-
-    try:
-        httpClient = http.client.HTTPConnection('api.fanyi.baidu.com')
-        httpClient.request('GET', myurl)
-
-        # response是HTTPResponse对象
-        response = httpClient.getresponse()
-        result_all = response.read().decode("utf-8")
-        result = json.loads(result_all)
-
-        # 返回结果示例
-        # {'from': 'en',
-        #  'to': 'zh',
-        #  'trans_result': [
-        #      {'src': 'apple',
-        #       'dst': '苹果'}
-        #  ]}
-
-        # print(result['trans_result'][0]['dst'])
-        return result['trans_result'][0]['dst']
-
-    except Exception as e:
-        print(e)
-    finally:
-        if httpClient:
-            httpClient.close()
-
-# 人工检查翻译是否正确
-
-
-def judge(blockMeaning, originWords, cameoCode, translatedWords):
-    return 'y'
-    print('原始分类: '+blockMeaning,
-          '原始字典: '+originWords,
-          'Cameo代码: '+cameoCode,
-          '翻译结果: '+translatedWords,
-          ' ',
-          sep='\n')
-    print('翻译结果符合\"分类\"请输入”y“;',
-          '翻译结果与\"分类\"明显不符请输入“n”;',
-        #   '本词暂不翻译请输入“c:',
-          sep='\n')
-    while(1):
-        ans = input()
-        if(ans == 'y' or ans == 'Y'):
-            return 'y'
-        elif(ans == 'n' or ans == 'N'):
-            return 'n'
-        # elif(ans == 'c' or ans == 'C'):
-        #     return 'c'
-        else:
-            print('无法识别您的输入，请重新输入: ')
 
 
 # 主要用于测试某单词或词组的翻译结果
 
 
 def test():
-    res=[]
+    res = []
     for synset in wn.synsets('slaughter', lang='eng'):
         print(synset)
         for lemma in synset.lemma_names('cmn'):
@@ -394,6 +376,7 @@ def test():
     print(res)
 
 # 相似度
+
 
 def sim(word_1, word_2):
     score = -1
@@ -416,8 +399,9 @@ if __name__ == "__main__":
     # baiduTranslate('angered_by')
     # sim('computer','算盘')
     # youdaoTranslate('relief_assistance')
-    translateFile()
-    writeFile()
-
-
-
+    # threading.Thread(target = rest_server.start, args =()).start()
+    threading.Thread(target = translateFile, args =()).start()
+    rest_server.start()
+    # rest_server.start()
+    # translateFile()
+    # writeFile()

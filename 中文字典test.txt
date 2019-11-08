@@ -1,0 +1,97 @@
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+ACCELERATE 
+ACCELERATE 
+EXPEDITE 
+EXPEDITE 
+---  ACCELERATE   [---]  ---
+ACCELERATE 
+ACCELERATE 
+ACCELERATE 
+EXPEDITE 
+EXPEDITE 
+---  ACCELERATE   [---]  ---
+ACCELERATE 
+ACCELERATE 
+ACCELERATE 
+---  ACCELERATE   [---]  ---
+加速 
+快进 
+加快 
+---  ACCELERATE   [---]  ---
+加快 
+使增速 
+快进 
+---  ACCELERATE   [---]  ---
+
+---  ANGER   [---]  ---
+---  ACCELERATE   [---]  ---
+加快 
+加速 
+快进 
+促进 
+推进 
+加紧 
+刺激 
+- * 援助                                               [070]         # RUSH
+- * 资助                                               [070]         # RUSH
+- * {军火运输}                                   [072]         # EXPEDITE
+- * {救灾援助}                               [073]         # RUSH
+- * {救济援助}                               [073]         # RUSH
+- * 缓和                                            [073]         # RUSH
+赶紧 
+快行 
+激起 
+加速 
+促进 
+---  ACCELERATE   [---]  ---
+加快 
+加速 
+促进 
+推进 
+冲进 
+赶紧 
+迅速前进 
+刺激 
+激起 
+- * 注意                                               [070]         # RUSH
+- * 援助                                               [070]         # RUSH
+- * 协助                                               [070]         # RUSH
+- * 帮忙                                               [070]         # RUSH
+- * {军火运输}                                   [072]         # EXPEDITE
+- * {救灾援助}                               [073]         # RUSH
+- * 缓和                                            [073]         # RUSH
+- * 部署                                        [154]         # ACCELERATE
+- * 部署                                        [154]         # ACCELERATE
+- * 集结                                           [154]         # ACCELERATE
+
+---  ANGER   [---]  ---
+发怒 
+愤怒 
+激怒 
+激怒 
+狂暴 
+
+---  APPEAR   [---]  ---
+显得 
+好像 
+看 
+看来好像 
+觉得像是 
+- * 转寄                                           [013]         # LOOK
+- * 转递                                           [013]         # LOOK
+- * 那是当然                                        [030]         # LOOK
+
+
+
+---  ADD   [---]  ---
