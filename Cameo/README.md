@@ -4,7 +4,7 @@
 
 ## Build Setup
 
-Hint: You can use `cnpm` in China to solve network problems.
+Hint: You can use `cnpm` in China Mainland to solve network problems.
 
 ``` bash
 # install dependencies
