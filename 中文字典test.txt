@@ -95,3 +95,9 @@ ACCELERATE
 
 
 ---  ADD   [---]  ---
+
+
+- AIRCRAFT * {MOCK ATTACKS}                          [062:062]     # STAGE
+-  MILITARY * EXERCISES                              [062:062]     # STAGE
+-  MILITARY * EXERCISES                              [062:062]     # STAGE
+-  MILITARY * EXERCISES                              [062:062]     # STAGE
