@@ -101,3 +101,200 @@ ACCELERATE
 -  MILITARY * EXERCISES                              [062:062]     # STAGE
 -  MILITARY * EXERCISES                              [062:062]     # STAGE
 -  MILITARY * EXERCISES                              [062:062]     # STAGE
+---  ACCELERATE   [---]  ---
+加速 
+使加速 
+推进 
+促进 
+飞驰 
+赶快 
+疾走 
+迅速前进 
+- * 援助                                               [070]         # RUSH
+
+---  ANGER   [---]  ---
+
+---  APPEAR   [---]  ---
+
+
+
+---  ADD   [---]  ---
+
+
+
+
+---  ALERT   [---]  ---
+
+
+
+
+---  ALLEVIATE   [---]  ---
+
+
+
+
+---  ALTER   [---]  ---
+
+
+
+
+
+
+
+
+---  ARRANGE   [---]  ---
+---  ACCELERATE   [---]  ---
+快进 
+
+---  ANGER   [---]  ---
+点火 
+
+---  APPEAR   [---]  ---
+
+
+
+---  ADD   [---]  ---
+
+
+
+
+---  ALERT   [---]  ---
+
+
+
+
+---  ALLEVIATE   [---]  ---
+
+
+
+
+---  ALTER   [---]  ---
+
+
+
+
+
+
+
+
+---  ARRANGE   [---]  ---
+安放 
+- * 外视图                                         [010]         # SET
+---  ACCELERATE   [---]  ---
+使增速 
+快进 
+促进 
+超速驾驶 
+
+---  ANGER   [---]  ---
+愤怒 
+怒气 
+激怒 
+激怒 
+恶化的 
+---  ACCELERATE   [---]  ---
+加速 
+
+---  ANGER   [---]  ---
+怒 
+
+---  APPEAR   [---]  ---
+觉得像是 
+- * 转发                                           [013]         # LOOK
+
+
+
+---  ADD   [---]  ---
+
+
+
+
+---  ALERT   [---]  ---
+
+
+
+
+---  ALLEVIATE   [---]  ---
+
+
+
+
+---  ALTER   [---]  ---
+
+- * {最后的接触}                                   [046]         # PUT
+- AIRCRAFT * {MOCK ATTACKS}                          [062:062]     # STAGE
+-  MILITARY * EXERCISES                              [062:062]     # STAGE
+-  MILITARY * EXERCISES                              [062:062]     # STAGE
+- * 干掉                                              [0841]        # SET
+---  ACCELERATE   [---]  ---
+- * 赔偿                                            [073]         # RUSH
+- * 部署                                        [154]         # ACCELERATE
+- * 部署                                        [154]         # ACCELERATE
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+---  ACCELERATE   [---]  ---
+加速 
+加速 
+飞驰 
+快行 
+刺激 
+使急速移动 
+使急速移动 
+- * 援助                                               [070]         # RUSH
+- * {军火运输}                                   [072]         # EXPEDITE
+- * {救灾援助}                               [073]         # RUSH
+- * 缓和                                            [073]         # RUSH
+- * 部署                                        [154]         # ACCELERATE
+- * 部署                                        [154]         # ACCELERATE
+
+---  ANGER   [---]  ---
+怒气 
+狂暴 
+恶化的 
+
+---  APPEAR   [---]  ---
+朝 
+- * 转寄                                           [013]         # LOOK
+- * 肯定地                                        [030]         # LOOK
+
+
+
+---  ADD   [---]  ---
+
+
+
+
+---  ALERT   [---]  ---
+警惕  # OY 08 Mar 2006
+
+
+
+
+---  ALLEVIATE   [---]  ---
+缓和 
+减损 
+
+
+
+
+---  ALTER   [---]  ---
+改变 
+- * 贸易                                              [031]         # REVISE
+- * 管理                                              [031]         # REVISE
+- * 分摊                                              [031]         # REVISE
+---  ALERT   [---]  ---
+警戒  # OY 08 Mar 2006
+
+- * 恢复                                            [073]         # ARRANGE
+- * 回去                                            [073]         # ARRANGE
+- * 带来                                            [073]         # ARRANGE
+- * 除掉                                              [0841]        # SET
+- * 调查                                    [090]         # SET
+- * 下排                                           [110:110]     # SET
+- * 展示                                     [141]         # STAGE
+- * 演示                                     [141]         # STAGE
+- * {群众集会}                                      [141]         # STAGE
+- * {群众大会}                                      [141]         # STAGE
+
+
+- * {停火倡议}                             [026]         # DELIVER

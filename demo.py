@@ -23,11 +23,10 @@ COUNT_DICTIONARY = 'count.txt'
 targetFile = []
 
 
-
 # 写文件
 
 
-def writeFile(block,count):
+def writeFile(block, count):
     global targetFile
 
     with open(COUNT_DICTIONARY, 'w') as f:
@@ -59,9 +58,11 @@ def translateFile():
         print('File does not exist!')
         return
 
-    count=-1 # count lines
+    count = -1  # count lines
 
     with open(ORIGENAL_DICTIONARY) as f:
+        while(rest_server.loading):
+            print('loading')
         while(True):
             # for block in range(0, 3):
 
@@ -77,15 +78,17 @@ def translateFile():
                     content = cf.readline().split(' ')
                     blockMeaning = content[0]
                     count = int(content[1])
-                    for i in range(0,count):
+                    for i in range(0, count):
                         f.readline()
             except:
                 print('No counting record')
 
             while(True):
                 line = f.readline()
+                comment = '' if len(line.split('#')) ==1 else line.split('#')[-1]
                 # print(line)
                 cameoCode = str(re.findall(r"\[(.+?)\]", line))
+                cameoCode = cameoCode.replace('\'','').replace('[','').replace(']','')
 
                 # 跳过含有明显介词的行
                 if '(' in line:
@@ -95,7 +98,7 @@ def translateFile():
                 elif line.startswith('---'):
                     segs = line.split()
                     blockMeaning = segs[1]
-                    print(segs,blockMeaning)
+                    print(segs, blockMeaning)
                     # block_code = segs[2]
                     res.append(line)
 
@@ -118,14 +121,16 @@ def translateFile():
                             'class': blockMeaning,
                             'origin': 'v. '+words.replace('_', ' '),
                             'code': cameoCode,
-                            'Chinese': tempTransRes
+                            'Chinese': tempTransRes,
+                            'comment': comment
                         })
-                    print(tempJudgeList,'111')
-                    returnRes=judge(tempJudgeList)
+                    print(tempJudgeList, '111')
+                    returnRes = judge(tempJudgeList)
 
                     for item in tempJudgeList:
                         if item in returnRes:
-                            res.append(tempLine.replace(words.replace('_', ' '), item['Chinese']))
+                            res.append(tempLine.replace(
+                                words.replace('_', ' '), item['Chinese']))
                         else:
                             wrongList.append(item['Chinese'])
                         # judgeResult = judge(
@@ -209,10 +214,11 @@ def translateFile():
                                 'class': blockMeaning,
                                 'origin': 'n. '+originWords,
                                 'code': cameoCode,
-                                'Chinese': tempTransRes
+                                'Chinese': tempTransRes,
+                                'comment': comment
                             })
-                        print(tempJudgeList,'222')
-                        returnRes=judge(tempJudgeList)
+                        print(tempJudgeList, '222')
+                        returnRes = judge(tempJudgeList)
 
                         for item in tempJudgeList:
                             if item in returnRes:
@@ -247,14 +253,16 @@ def translateFile():
                                 'class': blockMeaning,
                                 'origin': 'n. '+originWords,
                                 'code': cameoCode,
-                                'Chinese': tempTransRes
+                                'Chinese': tempTransRes,
+                                'comment': comment
                             })
-                        print(tempJudgeList,'333')
-                        returnRes=judge(tempJudgeList)
+                        print(tempJudgeList, '333')
+                        returnRes = judge(tempJudgeList)
 
                         for item in tempJudgeList:
                             if item in returnRes:
-                                res.append(line.replace('&', '').replace(originWords, item['Chinese']))
+                                res.append(line.replace('&', '').replace(
+                                    originWords, item['Chinese']))
                             else:
                                 wrongList.append(item['Chinese'])
                             # judgeResult = judge(blockMeaning, 'n. '+originWords,
@@ -309,17 +317,18 @@ def translateFile():
                         # 跳过已含有的词汇，除非本行存在cameo编号
                         if ifInBlockRes(tempTransRes, res) and cameoCode == '[]':
                             continue
-                        
+
                         print(blockMeaning, verb, cameoCode, tempTransRes)
                         tempJudgeList.append({
-                                'class': blockMeaning,
-                                'origin': 'v. '+verb,
-                                'code': cameoCode,
-                                'Chinese': tempTransRes
-                            })
+                            'class': blockMeaning,
+                            'origin': 'v. '+verb,
+                            'code': cameoCode,
+                            'Chinese': tempTransRes,
+                            'comment': comment
+                        })
 
-                    print(wordList,tempJudgeList)
-                    returnRes=judge(tempJudgeList)
+                    print(wordList, tempJudgeList)
+                    returnRes = judge(tempJudgeList)
 
                     for item in tempJudgeList:
                         if item in returnRes:
@@ -327,16 +336,14 @@ def translateFile():
                         else:
                             wrongList.append(item['Chinese'])
 
-                        
-
                         # judgeResult = judge(
                         #     blockMeaning, 'v. '+verb, cameoCode, word)
                         # if(judgeResult == 'y'):
                         #     res.append(line.replace(verb, word))
                         # elif(judgeResult == 'n'):
                         #     wrongList.append(word)
-                
-                count+=1 # count lines read
+
+                count += 1  # count lines read
 
                 if line == '\n':  # 块结尾，退出循环
                     break
@@ -347,18 +354,17 @@ def translateFile():
             print('jump?!')
             if rest_server.end_signal():
 
-                writeFile(blockMeaning,count)
+                writeFile(blockMeaning, count)
                 break
-            
+
             # if count>=20:
             #     break
 
             if line == '':  # 文件结尾，退出循环
-                writeFile(blockMeaning,count)
+                writeFile(blockMeaning, count)
                 break
 
         f.close()
-
 
 
 # 主要用于测试某单词或词组的翻译结果
@@ -376,6 +382,7 @@ def test():
     print(res)
 
 # 相似度
+
 
 def sim(word_1, word_2):
     score = -1
@@ -399,7 +406,7 @@ if __name__ == "__main__":
     # sim('computer','算盘')
     # youdaoTranslate('relief_assistance')
     # threading.Thread(target = rest_server.start, args =()).start()
-    threading.Thread(target = translateFile, args =()).start()
+    threading.Thread(target=translateFile, args=()).start()
     rest_server.start()
     # rest_server.start()
     # translateFile()
