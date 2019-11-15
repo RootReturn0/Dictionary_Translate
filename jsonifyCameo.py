@@ -7,48 +7,63 @@ TARGET_FILE_PATH = './doc/CameoCode.json'
 
 jsonData = []
 
+
 def extract():
     global jsonData
     with open(ORIGIN_FILE_PATH, 'r') as f:
         # print(f.readlines())
         while(True):
-            line=''
+            line = ''
             cameo = ''
             name = ''
-            description = []
-            usage_notes = []
+            description = ''
+            usage_notes = ''
             example = []
-            c=0
             while(True):
-                c+=1
                 line = f.readline()
                 if line.startswith(' CAMEO'):
-                    cameo=line.split()[-1]
+                    cameo = line.split()[-1]
                 elif line.startswith(' Name'):
                     # print(' '.join(line.split()[1:]))
                     name = ' '.join(line.split()[1:])
                 elif line.startswith(' Description'):
-                    description.append(' '.join(line.split()[1:]))
+                    description = (' '.join(line.split()[1:]))
                     while(True):
                         line = f.readline()
-                        if line.startswith(' Usage Notes') or line.startswith(' Example') or line=='\n':
+                        if line.startswith(' Usage Notes') or line.startswith(' Example') or line == '\n':
                             break
-                        description.append(' '.join(line.split()))
+                        if description.endswith('-'):
+                            description = description[:-2] + \
+                                ' '.join(line.split())
+                        else:
+                            description += ' '+(' '.join(line.split()))
                 if line.startswith(' Usage Notes'):
-                    usage_notes.append(' '.join(line.split()[1:]))
+                    usage_notes = (' '.join(line.split()[1:]))
                     while(True):
                         line = f.readline()
-                        if line.startswith(' Example') or line=='\n':
+                        if line.startswith(' Example') or line == '\n':
                             break
-                        usage_notes.append(' '.join(line.split()))
+                        if usage_notes.endswith('-'):
+                            usage_notes = usage_notes[:-2] + \
+                                ' '.join(line.split())
+                        else:
+                            usage_notes += ' '+(' '.join(line.split()))
                 if line.startswith(' Example'):
-                    example.append(' '.join(line.split()[1:]))
                     while(True):
-                        line = f.readline()
-                        if line=='\n' or ('VERB CODEBOOK' in line):
+                        exampleItem = (' '.join(line.split()[1:]))
+                        while(True):
+                            line = f.readline()
+                            if line.startswith(' Example') or line == '\n' or ('VERB CODEBOOK' in line):
+                                break
+                            if exampleItem.endswith('-'):
+                                exampleItem = exampleItem[:-2] + \
+                                    ' '.join(line.split())
+                            else:
+                                exampleItem += ' '+(' '.join(line.split()))
+                        example.append(exampleItem)
+                        if line == '\n' or ('VERB CODEBOOK' in line):
                             break
-                        example.append(' '.join(line.split()))
-                if line == '\n' or line =='':
+                if line == '\n' or line == '':
                     break
             if cameo:
                 jsonData.append({
@@ -63,10 +78,11 @@ def extract():
                 print('File Extracted!')
                 break
 
+
 def writeFile():
     global jsonData
-    with open(TARGET_FILE_PATH,'w') as json_file:
-        json.dump(jsonData,json_file,ensure_ascii=False)
+    with open(TARGET_FILE_PATH, 'w') as json_file:
+        json.dump(jsonData, json_file, ensure_ascii=False)
         json_file.close()
         print('JSON File saved!')
 

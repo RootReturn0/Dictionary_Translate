@@ -113,8 +113,8 @@ def translateFile():
                         # 跳过明显偏离
                         if tempTransRes in wrongList:
                             continue
-                        # 跳过已含有的词汇，除非本行存在cameo编号
-                        if ifInBlockRes(tempTransRes, res) and cameoCode == '[]':
+                        # 跳过已含有的词汇
+                        if ifInBlockRes(tempTransRes, res):
                             continue
 
                         tempJudgeList.append({
@@ -246,7 +246,7 @@ def translateFile():
                             # 跳过明显偏离
                             if tempTransRes in wrongList:
                                 continue
-                            # 跳过已含有的词汇 Cameo是否再判断一次？
+                            # 跳过已含有的词汇
                             if ifInBlockRes(tempTransRes, res):
                                 continue
                             tempJudgeList.append({
@@ -314,8 +314,8 @@ def translateFile():
                         # 跳过明显偏离
                         if tempTransRes in wrongList:
                             continue
-                        # 跳过已含有的词汇，除非本行存在cameo编号
-                        if ifInBlockRes(tempTransRes, res) and cameoCode == '[]':
+                        # 跳过已含有的词汇
+                        if ifInBlockRes(tempTransRes, res):
                             continue
 
                         print(blockMeaning, verb, cameoCode, tempTransRes)
