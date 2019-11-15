@@ -10,9 +10,11 @@ NLP
 
 ## Usage
 
-> You may need to open 2 terminal windows!
+You may need to open 2 terminal windows!
 
 ### Front
+
+Running at `localhost:8080`
 
 > Hint: You can use [cnpm](https://github.com/cnpm/cnpm) in China Mainland to get much more faster speed.
 
