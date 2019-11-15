@@ -14,7 +14,7 @@ NLP
 
 ### Front
 
-Hint: You can use [cnpm](https://github.com/cnpm/cnpm) in China Mainland to get much more faster speed.
+> Hint: You can use [cnpm](https://github.com/cnpm/cnpm) in China Mainland to get much more faster speed.
 
 #### Build Setup
 
