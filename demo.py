@@ -14,9 +14,9 @@ from judge import judge
 import threading
 import rest_server
 
-ORIGENAL_DICTIONARY = '英文字典.txt'
-TARGET_DICTIONARY = '中文字典test.txt'
-COUNT_DICTIONARY = 'count.txt'
+ORIGENAL_DICTIONARY = os.path.join(os.path.abspath(os.path.dirname(__file__)),'英文字典.txt')
+TARGET_DICTIONARY = os.path.join(os.path.abspath(os.path.dirname(__file__)),'中文字典test.txt')
+COUNT_DICTIONARY = os.path.join(os.path.abspath(os.path.dirname(__file__)),'count.txt')
 
 # TESTLIST = ['EARLY', 'ELECTIONS']
 
@@ -33,7 +33,7 @@ def writeFile(block, count):
         f.write(block+' '+str(count))
         f.close()
 
-    with open(TARGET_DICTIONARY, 'a') as f:
+    with open(TARGET_DICTIONARY, 'a',encoding="utf-8") as f:
         print(targetFile)
         f.writelines(targetFile)
         f.close()
@@ -61,8 +61,11 @@ def translateFile():
     count = -1  # count lines
 
     with open(ORIGENAL_DICTIONARY) as f:
-        while(rest_server.loading):
-            print('loading')
+        c=0
+        # while(rest_server.loading):
+        #     if c:
+        #         print('loading')
+        #     c=c+1
         while(True):
             # for block in range(0, 3):
 

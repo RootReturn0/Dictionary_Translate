@@ -12,10 +12,10 @@ import shutil
 import subprocess
 import json
 
-
 app = Flask(__name__)
 
-CAMEO_CODE_FILE = './doc/CameoCode.json'
+
+CAMEO_CODE_FILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'doc\\CameoCode.json')
 CAMEO_CODE_LIST = []
 
 data = [{
@@ -55,7 +55,7 @@ def start():
     global loading
     global CAMEO_CODE_LIST
     end =False
-    with open(CAMEO_CODE_FILE, 'r') as f:
+    with open(CAMEO_CODE_FILE, 'rb') as f:
         CAMEO_CODE_LIST = json.load(f)
         f.close()
     loading = False
@@ -95,7 +95,7 @@ def show_results():
 
     if request.method == 'POST' or request.method == 'GET':
         global data
-        print(data)
+        #print(data)
 
         cameoData = []
 
