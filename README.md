@@ -52,7 +52,7 @@ npm install --save element-ui
 `python download.py`
 
 
-Choose tab `Corpora` and download `omw`. If it still can not work properly, download everything relative to "wordnet".
+Choose tab `Corpora`, download `omw` and `wordnet`. If it still can not work properly, download everything relative to "wordnet".
 
 Enjoy `demo.py` now!
 
