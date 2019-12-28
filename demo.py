@@ -1,7 +1,3 @@
-# 功能已初步实现，考虑可拆分代码为不同文件
-# 命名略混乱，考虑重新命名
-# 注释不规范
-
 from nltk.corpus import wordnet as wn
 
 import itertools
@@ -12,7 +8,9 @@ from translateAPI import translateByAPI
 from judge import judge
 
 import threading
-import rest_server
+import time
+# import rest_server
+import var
 
 ORIGENAL_DICTIONARY = '英文字典.txt'
 TARGET_DICTIONARY = '中文字典test.txt'
@@ -20,23 +18,50 @@ COUNT_DICTIONARY = 'count.txt'
 
 # TESTLIST = ['EARLY', 'ELECTIONS']
 
-targetFile = []
 
 
 # 写文件
 
 
-def writeFile(block, count):
-    global targetFile
+def writeFile(translatedRes):
+    var.category=''
+    if not var.save:
+        print('File is not saved!')
+        return
+    # with open(COUNT_DICTIONARY, 'w') as f:
+    #     f.write(block+' '+str(count))
+    #     f.close()
+    dictionary=[]
+    with open(TARGET_DICTIONARY, 'r') as f: # w+不好使！！于是用了r+w
+        dictionary=f.readlines()
+    print(dictionary)
+    with open(TARGET_DICTIONARY, 'w') as f:
+        lineNum = 0
+        for res in translatedRes:
+            # 不论类别，字典均顺序提取翻译，若该块不存在字典中，则该块下所有翻译均为新增，顺序加入即可
+            # 不存在当然加入，若存在则跳过表明类别的行
+            isExist = False
+            for index, line in enumerate(dictionary):
+                if res['category'] == line:
+                    isExist = True
+                    lineNum = index + 1 # 即将被插入的地方
+                    break
+            if not isExist:
+                dictionary.append('\n') # 换行，分隔块
+                dictionary.append(res['category'])
+                dictionary.append(res['content'])
+            else:
+                if not res['content'].startswith('-'): # 如果不是名词
+                    dictionary.insert(lineNum,res['content'])
+                    # print('1',dictionary,'\n')
+                else:
+                    while(not dictionary[lineNum].startswith('-') and dictionary[lineNum] != '\n'):
+                        lineNum=lineNum+1
+                    dictionary.insert(lineNum,res['content'])
+                    # print('2',dictionary,'\n')
 
-    with open(COUNT_DICTIONARY, 'w') as f:
-        f.write(block+' '+str(count))
-        f.close()
-
-    with open(TARGET_DICTIONARY, 'a') as f:
-        print(targetFile)
-        f.writelines(targetFile)
-        f.close()
+        f.writelines(dictionary)
+        # f.close()
     print('Files saved!')
 
 # 判断是否已存在于本块的翻译内
@@ -52,7 +77,7 @@ def ifInBlockRes(item, resList):
 
 
 def translateFile():
-    global targetFile
+    translatedRes = []
 
     if not os.path.exists(ORIGENAL_DICTIONARY):
         print('File does not exist!')
@@ -61,46 +86,58 @@ def translateFile():
     count = -1  # count lines
 
     with open(ORIGENAL_DICTIONARY) as f:
-        while(rest_server.loading):
-            print('loading')
+        print('called')
+        # while(var.loading):
+        #     print('loading')
         while(True):
             # for block in range(0, 3):
 
             blockMeaning = ''
+            blockLine = ''
+            isAll = False # 判断是否整块属于类使用
             # 记录块结果，减少去重所需时间
             res = []
             wrongList = []
 
-            fileSlice = ''
-
-            try:
-                with open(COUNT_DICTIONARY) as cf:
-                    content = cf.readline().split(' ')
-                    blockMeaning = content[0]
-                    count = int(content[1])
-                    for i in range(0, count):
-                        f.readline()
-            except:
-                print('No counting record')
+            # 暂存以翻译内容使用，按类别翻译后不需要
+            # try:
+            #     with open(COUNT_DICTIONARY) as cf:
+            #         content = cf.readline().split(' ')
+            #         blockMeaning = content[0]
+            #         count = int(content[1])
+            #         for i in range(0, count):
+            #             f.readline()
+            # except:
+            #     print('No counting record')
 
             while(True):
+                if var.end:
+                    break
                 line = f.readline()
+                # if (line.split('[')[-1].split(']')[0]=='022'):
+                #     print(line.split('[')[-1].split(']')[0].startswith(var.category))
+                #     time.sleep(100)
+                count=count+1
+                print(count,var.end,line.split('[')[-1].split(']')[0])
+                if line.startswith('---'):
+                    isAll = False # 重置标志
+                    segs = line.split()
+                    blockMeaning = segs[1]
+                    if segs[2].replace('[','').startswith(var.category):
+                        isAll = True
+                    blockLine = line
+                if (not isAll) and (not line.split('[')[-1].split(']')[0].startswith(var.category)):
+                    continue
                 comment = '' if len(line.split('#')) ==1 else line.split('#')[-1]
                 # print(line)
                 cameoCode = str(re.findall(r"\[(.+?)\]", line))
                 cameoCode = cameoCode.replace('\'','').replace('[','').replace(']','')
 
-                # 跳过含有明显介词的行
-                if '(' in line:
+                if line.startswith('---'):
                     continue
-
-                # 块开头
-                elif line.startswith('---'):
-                    segs = line.split()
-                    blockMeaning = segs[1]
-                    print(segs, blockMeaning)
-                    # block_code = segs[2]
-                    res.append(line)
+                # 跳过含有明显介词的行
+                elif '(' in line:
+                    continue
 
                 # +开头的词组使用翻译API
                 elif line.startswith('+'):
@@ -129,18 +166,10 @@ def translateFile():
 
                     for item in tempJudgeList:
                         if item in returnRes:
-                            res.append(tempLine.replace(
-                                words.replace('_', ' '), item['Chinese']))
+                            res.append({'category':blockLine,'content':tempLine.replace(
+                                words.replace('_', ' '), item['Chinese'])})
                         else:
                             wrongList.append(item['Chinese'])
-                        # judgeResult = judge(
-                        #     blockMeaning, 'v. '+words.replace('_', ' '), cameoCode, temp)
-                        # if(judgeResult == 'y'):
-                        #     res.append(tempLine.replace(words, temp))
-                        # elif(judgeResult == 'n'):
-                        #     wrongList.append(temp)
-                        # else:
-                        #     res.append(line)
 
                 # 名词搭配
                 elif line.startswith('-'):
@@ -151,48 +180,13 @@ def translateFile():
                     words = word.replace('&', '').replace(
                         "}", "").replace("{", "").split()
                     originWords = ' '.join(words)
-                    # words=TESTLIST
                     wordList = []
-                    # index = 0
-                    # for singleWord in words:
-                    #     wordList.append([])
-                    #     for synset in wn.synsets(singleWord, lang='eng'):
-                    #         for lemma in synset.lemma_names('cmn'):
-                    #             # wordnet中对形容词翻译含有该符号，清除,如“前面+的”
-                    #             lemma = lemma.replace('+', '')
-                    #             wordList[index].append(lemma)
-                    #     wordList[index] = list(set(wordList[index]))  # 去除重复项
-                    #     index += 1
-
-                    # # 笛卡尔积，对词组中每个词的翻译结果进行组合
-                    # # 准确率低，考虑删去中
-                    # for item in itertools.product(*wordLists):
-                    #     translatedWords = ''
-                    #     # 删去英文字典中取同义词集的符号
-                    #     temp = line.replace('&', '')
-                    #     # 按顺序分别替换对应单词
-                    #     for i in range(0, len(words)):
-                    #         translatedWords = translatedWords+item[i]
-                    #         temp = temp.replace(words[i], item[i])
-
-                    #     # print(temp)
-                    #     # 跳过明显偏离
-                    #     if translatedWords in wrongList:
-                    #         continue
-                    #     # 跳过已含有的词汇，除非本行存在cameo编号
-                    #     if ifInBlockRes(translatedWords, res) and cameoCode == '[]':
-                    #         continue
-
-                    #     judgeResult = judge(
-                    #         blockMeaning, 'n. '+originWords, cameoCode, translatedWords)
-                    #     if(judgeResult == 'y'):
-                    #         res.append(temp)
-                    #     elif(judgeResult == 'n'):
-                    #         wrongList.append(translatedWords)
 
                     if len(words) == 1:
                         isFound = False  # 判断单词是否能被找到
                         for synset in wn.synsets(words[0], lang='eng'):
+                            print(wn.synsets(words[0], lang='eng'))
+                            print(synset.lemma_names('cmn'))
                             for lemma in synset.lemma_names('cmn'):
                                 isFound = True
                                 # wordnet中对形容词翻译含有该符号，如“前面+的”
@@ -200,14 +194,19 @@ def translateFile():
                                 if '+' in lemma:
                                     continue
                                 # 比较相似度，去除差距明显过大词汇，但阈值未严格测试
-                                if(sim(blockMeaning, lemma) < 0.2):
+                                if(sim(blockMeaning, lemma) < 0.14):
+                                    print('uunlike ',lemma,blockMeaning,sim(blockMeaning, lemma))
                                     continue
                                 wordList.append(lemma)
                         if isFound:
                             wordList = list(set(wordList))  # 去重
+                            if not wordList: #可能全被过滤了
+                                wordList = translateByAPI(words[0])
+                            print('isFound')
                         else:
+                            print('not founnd')
                             wordList = translateByAPI(words[0])
-
+                        print(wordList)
                         tempJudgeList = []
                         for tempTransRes in wordList:
                             tempJudgeList.append({
@@ -222,19 +221,9 @@ def translateFile():
 
                         for item in tempJudgeList:
                             if item in returnRes:
-                                res.append(line.replace('&', '').replace(originWords, item['Chinese']))
+                                res.append({'category':blockLine,'content':line.replace('&', '').replace(originWords, item['Chinese'])})
                             else:
                                 wrongList.append(item['Chinese'])
-                            # judgeResult = judge(blockMeaning, 'n. '+originWords,
-                            #                     cameoCode, result)
-                            # if(judgeResult == 'y'):
-                            #     temp = line.replace('&', '').replace(
-                            #         originWords, result)
-                            #     # for i in range(1, len(words)):
-                            #     #     temp = temp.replace(words[i], '')
-                            #     res.append(temp)
-                            # elif(judgeResult == 'n'):
-                            #     wrongList.append(result
 
                     else:
 
@@ -261,24 +250,14 @@ def translateFile():
 
                         for item in tempJudgeList:
                             if item in returnRes:
-                                res.append(line.replace('&', '').replace(
-                                    originWords, item['Chinese']))
+                                res.append({'category':blockLine,'content':line.replace('&', '').replace(
+                                    originWords, item['Chinese'])})
                             else:
                                 wrongList.append(item['Chinese'])
-                            # judgeResult = judge(blockMeaning, 'n. '+originWords,
-                            #                     cameoCode, translatedWords)
-                            # if(judgeResult == 'y'):
-                            #     temp = line.replace('&', '').replace(
-                            #         originWords, translatedWords)
-                            #     # for i in range(1, len(words)):
-                            #     #     temp = temp.replace(words[i], '')
-                            #     res.append(temp)
-                            # elif(judgeResult == 'n'):
-                            #     wrongList.append(translatedWords)
 
-                # 空行
-                elif line == '\n':
-                    res.append(line)  # 加入以得到合适的带有空行的翻译文件
+                # 空行(分类翻译后不再需要)
+                # elif line == '\n':
+                #     res.append(line)  # 加入以得到合适的带有空行的翻译文件
 
                 # 开头无任何特殊标记
                 else:
@@ -332,37 +311,25 @@ def translateFile():
 
                     for item in tempJudgeList:
                         if item in returnRes:
-                            res.append(line.replace(verb, item['Chinese']))
+                            res.append({'category':blockLine,'content':line.replace(verb, item['Chinese'])})
                         else:
                             wrongList.append(item['Chinese'])
-
-                        # judgeResult = judge(
-                        #     blockMeaning, 'v. '+verb, cameoCode, word)
-                        # if(judgeResult == 'y'):
-                        #     res.append(line.replace(verb, word))
-                        # elif(judgeResult == 'n'):
-                        #     wrongList.append(word)
-
-                count += 1  # count lines read
 
                 if line == '\n':  # 块结尾，退出循环
                     break
 
-                if rest_server.end_signal():
+                if var.end:
                     break
-            targetFile = targetFile+res
+            translatedRes = translatedRes+res
+            if var.end:
+                print(translatedRes)
+                writeFile(translatedRes)
+                break
             print('jump?!')
-            if rest_server.end_signal():
 
-                writeFile(blockMeaning, count)
-                break
-
-            # if count>=20:
+            # if line == '':  # 文件结尾，退出循环
+            #     writeFile(translatedRes)
             #     break
-
-            if line == '':  # 文件结尾，退出循环
-                writeFile(blockMeaning, count)
-                break
 
         f.close()
 
@@ -406,8 +373,8 @@ if __name__ == "__main__":
     # sim('computer','算盘')
     # youdaoTranslate('relief_assistance')
     # threading.Thread(target = rest_server.start, args =()).start()
-    threading.Thread(target=translateFile, args=()).start()
-    rest_server.start()
+    # threading.Thread(target=translateFile, args=()).start()
     # rest_server.start()
-    # translateFile()
+    # rest_server.start()
+    translateFile()
     # writeFile()

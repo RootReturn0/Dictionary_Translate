@@ -11,77 +11,81 @@ import os
 import shutil
 import subprocess
 import json
+import threading
 
+import var
+import demo
 
 app = Flask(__name__)
 
 CAMEO_CODE_FILE = './doc/CameoCode.json'
-CAMEO_CODE_LIST = []
+CAMEO_STATUS_FILE = './CameoStatus.json'
+cameo_code_list = []
+cameo_status_list = []
 
-data = [{
-    'class': "123",
-    'origin': 'apple',
-    'code': '[070]',
-    'Chinese': '苹果',
-}, {
-    'class': "123",
-    'origin': 'apple',
-    'code': '[070]',
-    'Chinese': '苹果果',
-}]
-
-res = True
 
 lock = True  # lock for judge process
-
-loading = True
-
-end = False
-
-
-def test1():
-    global data
-    print(data)
-    data = []
-
-
-def test2():
-    global data
-    print('sda', data)
+demoStart=False
 
 
 def start():
-    global end
-    global loading
-    global CAMEO_CODE_LIST
-    end =False
+    global cameo_code_list
+    var.end =False
+    var.save=True
     with open(CAMEO_CODE_FILE, 'r') as f:
-        CAMEO_CODE_LIST = json.load(f)
+        cameo_code_list = json.load(f)
         f.close()
-    loading = False
+    with open(CAMEO_STATUS_FILE, 'r') as f:
+        global cameo_status_list
+        cameo_status_list = json.load(f)
+        f.close()
+
+    var.loading = False
+    threading.Thread(target=checkData, args=()).start()
     app.run(debug=True, threaded=True, host='127.0.0.1', port=5000)
 
 
-def send_data(receive):
-    global data
-    data = receive
-    # print(data)
-    global lock
+def checkData():
     while(True):
-        global lock
-        if(not lock):
-            break
-    lock = True
+        if(var.toBeTranslated):
+            # print(data)
+            global lock
+            while(True):
+                global lock
+                if(not lock):
+                    break
+            lock = True
+            var.translating = False
 
-    global res
-    return res
+# ==============================================================================================================================
+#
+#  This function is used to init menu
+#
+# ==============================================================================================================================
+@app.route('/init', methods=['GET'])
+def init():
+    if request.method == 'GET':
+        # print(cameo_status_list)
+        return jsonify(cameo_status_list)
 
-
-def end_signal():
-    global end
-    if end:
-        print('End pass?!')
-    return end
+# ==============================================================================================================================
+#
+#  This function is used to set category
+#
+# ==============================================================================================================================
+@app.route('/setCategory', methods=['POST'])
+def receiveCategory():
+    print("receive category")
+    global demoStart
+    if request.method == 'POST':
+        jsonData = json.loads(request.data)
+        var.category = jsonData['category']
+        # print(var.category)
+        var.end=False
+        if not demoStart:
+            demoStart=True
+            threading.Thread(target=demo.translateFile, args=()).start()
+        return jsonify({'flag':True})
 
 # ==============================================================================================================================
 #
@@ -91,15 +95,14 @@ def end_signal():
 @app.route('/upload', methods=['POST', 'GET'])
 def show_results():
 
-    print("show results")
+    # print("show results")
 
     if request.method == 'POST' or request.method == 'GET':
-        global data
-        print(data)
+        # print(data)
 
         cameoData = []
 
-        for item in data:
+        for item in var.toBeTranslated:
             flag = False
             for i in cameoData:
                 if i['code'] == item['code']:
@@ -107,16 +110,16 @@ def show_results():
                     break
             if flag:
                 continue
-            for cameo in CAMEO_CODE_LIST:
+            for cameo in cameo_code_list:
                 if cameo['cameo'] == item['code']:
-                    print(cameo)
+                    # print(cameo)
                     cameoData.append({
                         'code': item['code'],
                         'content': cameo
                     })
                     break
 
-        return jsonify({'transData': data, 'cameoData': cameoData})
+        return jsonify({'transData': var.toBeTranslated, 'cameoData': cameoData})
 
 # ==============================================================================================================================
 #
@@ -132,9 +135,8 @@ def get_judges():
 
     if request.method == 'POST':
         jsonData = json.loads(request.data)
-        global res
-        res = jsonData
-        print(res)
+        var.translatedRes = jsonData
+        # print(res)
         global lock
         lock = False
         return "succeed!"
@@ -152,13 +154,28 @@ def end():
     print("Ends Manually!")
 
     if request.method == 'POST':
-        global end
-        end = True
-        global res
-        res = []
-        global lock
-        lock = False
-        return "End succeed!"
+        var.toBeTranslated=[]
+        jsonData = json.loads(request.data)
+        print(jsonData)
+        var.save = False
+        for cameo in cameo_status_list:
+            if jsonData['category']==cameo['cameo']:
+                cameo['status']=True
+                var.save=True
+                break
+        var.end = True
+        var.translating=False
+        print(cameo_status_list)
+        with open(CAMEO_STATUS_FILE, 'w') as json_file:
+            json.dump(cameo_status_list, json_file, ensure_ascii=False)
+            json_file.close()
+            print('Status JSON File saved!')
+        global demoStart
+        demoStart = False
+        if var.save:
+            return jsonify({'flag':True,'res':'成功保存结果'})
+        else:
+            return jsonify({'flag':False,'res':'未保存结果'})
 
 
 # #==============================================================================================================================
@@ -174,4 +191,5 @@ def end():
 
 if __name__ == '__main__':
     # print(demo.TARGET_DICTIONARY)
-    app.run(debug=True, threaded=True, host='127.0.0.1', port=5000)
+    start()
+    # app.run(debug=True, threaded=True, host='127.0.0.1', port=5000)

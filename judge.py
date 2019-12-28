@@ -1,13 +1,21 @@
 # 人工检查翻译是否正确
 
-import rest_server
+import var
+import time
 
 def judge(tempDictList):
+    print(tempDictList)
     if tempDictList == []:
         return []
-    data=tempDictList
-    print(data)
-    res=rest_server.send_data(data)
+    var.toBeTranslated=tempDictList
+    var.translating=True
+    while(var.translating):
+        # print('waiting')
+        continue
+
+    var.toBeTranslated = []
+    print(var.translatedRes)
+    res=var.translatedRes
     return res
 
 # def judge(blockMeaning, originWords, cameoCode, translatedWords):
