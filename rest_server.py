@@ -5,7 +5,7 @@
 # here as json and being branched out to each projects. Basic level of validation is also being done in this file. #
 # -------------------------------------------------------------------------------------------------------------------------------
 ################################################################################################################################
-from flask import Flask, jsonify, abort, request, make_response, url_for, redirect, render_template
+from flask import Flask, jsonify, abort, request, make_response, url_for, redirect, render_template, send_file
 from flask_httpauth import HTTPBasicAuth
 import os
 import shutil
@@ -42,7 +42,7 @@ def start():
 
     var.loading = False
     threading.Thread(target=checkData, args=()).start()
-    app.run(debug=True, threaded=True, host='127.0.0.1', port=5000)
+    app.run(debug=True, threaded=True, host='127.0.0.1', port=5050)
 
 
 def checkData():
@@ -56,6 +56,20 @@ def checkData():
                     break
             lock = True
             var.translating = False
+
+
+# ==============================================================================================================================
+#
+#  This function is used to send file
+#
+# ==============================================================================================================================
+@app.route('/return_file', methods=['GET'])
+def return_file():
+    file_name = 'Cameo中文字典.txt'
+    file_path = os.path.join(os.path.abspath('.'), file_name)
+    # 首先定义一个生成器，每次读取512个字节
+
+    return send_file(file_path)
 
 # ==============================================================================================================================
 #
