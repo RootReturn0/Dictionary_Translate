@@ -18,8 +18,8 @@ import demo
 
 app = Flask(__name__)
 
-CAMEO_CODE_FILE = './doc/CameoCode.json'
-CAMEO_STATUS_FILE = './CameoStatus.json'
+CAMEO_CODE_FILE = os.path.join(os.path.abspath('.'), 'doc/CameoCode.json')
+CAMEO_STATUS_FILE = os.path.join(os.path.abspath('.'), 'CameoStatus.json')
 cameo_code_list = []
 cameo_status_list = []
 
@@ -32,6 +32,9 @@ def start():
     global cameo_code_list
     var.end =False
     var.save=True
+    print(CAMEO_CODE_FILE)
+    print(demo.ORIGENAL_DICTIONARY)
+    print(CAMEO_STATUS_FILE )
     with open(CAMEO_CODE_FILE, 'r') as f:
         cameo_code_list = json.load(f)
         f.close()

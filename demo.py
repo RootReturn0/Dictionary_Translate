@@ -12,9 +12,10 @@ import time
 # import rest_server
 import var
 
-ORIGENAL_DICTIONARY = '英文字典.txt'
-TARGET_DICTIONARY = '中文字典test.txt'
-COUNT_DICTIONARY = 'count.txt'
+
+ORIGENAL_DICTIONARY = os.path.join(os.path.abspath('.'), '英文字典.txt')
+TARGET_DICTIONARY = os.path.join(os.path.abspath('.'), 'Cameo中文字典.txt')
+# COUNT_DICTIONARY = 'count.txt'
 
 # TESTLIST = ['EARLY', 'ELECTIONS']
 
