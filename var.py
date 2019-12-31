@@ -7,7 +7,7 @@ category=''
 
 translating = True
 
-translateRes=[]
+translatedRes=[]
 
 toBeTranslated=[]
 

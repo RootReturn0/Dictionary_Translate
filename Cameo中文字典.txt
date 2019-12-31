@@ -13,8 +13,16 @@
 
 ---  ASK   [---]  ---
 - * 投资                                        [0211]        # ASK
+- * 投资                                        [0211]        # ASK
 
 ---  ENCOURAGE   [051]  ---
 - * 投资学                                        [0211]        # ENCOURAGE
 - * 投资                                        [0211]        # ENCOURAGE
 - * 投资                                        [0211]        # ENCOURAGE
+- * 投资学                                        [0211]        # ENCOURAGE
+- * 投资                                        [0211]        # ENCOURAGE
+- * 投资                                        [0211]        # ENCOURAGE
+
+---  DEFEND   [074]  ---
+- * 评判                                               [0211]        # DEFEND
+- * 评估                                               [0211]        # DEFEND

@@ -35,10 +35,10 @@ def start():
     print(CAMEO_CODE_FILE)
     print(demo.ORIGENAL_DICTIONARY)
     print(CAMEO_STATUS_FILE )
-    with open(CAMEO_CODE_FILE, 'r') as f:
+    with open(CAMEO_CODE_FILE, 'r', encoding="utf-8") as f:
         cameo_code_list = json.load(f)
         f.close()
-    with open(CAMEO_STATUS_FILE, 'r') as f:
+    with open(CAMEO_STATUS_FILE, 'r',encoding="utf-8") as f:
         global cameo_status_list
         cameo_status_list = json.load(f)
         f.close()
