@@ -33,10 +33,10 @@ def writeFile(translatedRes):
     #     f.write(block+' '+str(count))
     #     f.close()
     dictionary=[]
-    with open(TARGET_DICTIONARY, 'r') as f: # w+不好使！！于是用了r+w
+    with open(TARGET_DICTIONARY, 'r',encoding="utf-8") as f: # w+不好使！！于是用了r+w
         dictionary=f.readlines()
     print(dictionary)
-    with open(TARGET_DICTIONARY, 'w') as f:
+    with open(TARGET_DICTIONARY, 'w',encoding="utf-8") as f:
         lineNum = 0
         for res in translatedRes:
             # 不论类别，字典均顺序提取翻译，若该块不存在字典中，则该块下所有翻译均为新增，顺序加入即可
@@ -86,7 +86,7 @@ def translateFile():
 
     count = -1  # count lines
 
-    with open(ORIGENAL_DICTIONARY) as f:
+    with open(ORIGENAL_DICTIONARY,encoding="utf-8") as f:
         print('called')
         # while(var.loading):
         #     print('loading')
