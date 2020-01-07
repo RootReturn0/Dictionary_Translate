@@ -59,7 +59,7 @@ def translateFile():
         return
 
     count = -1  # count lines
-
+    countNum = 0
     with open(ORIGENAL_DICTIONARY) as f:
         c=0
         # while(rest_server.loading):
@@ -75,16 +75,17 @@ def translateFile():
             wrongList = []
 
             fileSlice = ''
-
-            try:
-                with open(COUNT_DICTIONARY) as cf:
-                    content = cf.readline().split(' ')
-                    blockMeaning = content[0]
-                    count = int(content[1])
-                    for i in range(0, count):
-                        f.readline()
-            except:
-                print('No counting record')
+            if countNum is 0:
+                countNum = 1+ countNum
+                try:
+                    with open(COUNT_DICTIONARY) as cf:
+                        content = cf.readline().split(' ')
+                        blockMeaning = content[0]
+                        count = int(content[1])
+                        for i in range(0, count):
+                            f.readline()
+                except:
+                    print('No counting record')
 
             while(True):
                 line = f.readline()
