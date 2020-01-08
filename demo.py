@@ -62,10 +62,8 @@ def translateFile():
     countNum = 0
     with open(ORIGENAL_DICTIONARY) as f:
         c=0
-        # while(rest_server.loading):
-        #     if c:
-        #         print('loading')
-        #     c=c+1
+        while(rest_server.loading):
+            print('loading')
         while(True):
             # for block in range(0, 3):
 
