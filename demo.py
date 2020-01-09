@@ -14,7 +14,7 @@ from judge import judge
 import threading
 import rest_server
 
-ORIGENAL_DICTIONARY = os.path.join(os.path.abspath(os.path.dirname(__file__)),'英文字典.txt')
+ORIGENAL_DICTIONARY = os.path.join(os.path.abspath(os.path.dirname(__file__)),'CameoCleanDic.txt')
 TARGET_DICTIONARY = os.path.join(os.path.abspath(os.path.dirname(__file__)),'中文字典test.txt')
 COUNT_DICTIONARY = os.path.join(os.path.abspath(os.path.dirname(__file__)),'count.txt')
 
@@ -202,8 +202,8 @@ def translateFile():
                                 if '+' in lemma:
                                     continue
                                 # 比较相似度，去除差距明显过大词汇，但阈值未严格测试
-                                if(sim(blockMeaning, lemma) < 0.2):
-                                    continue
+                                # if(sim(blockMeaning, lemma) < 0.2):
+                                #     continue
                                 wordList.append(lemma)
                         if isFound:
                             wordList = list(set(wordList))  # 去重
